@@ -1,3 +1,5 @@
 skylark_rule(
-    name="render"
-    )
+    name="golang_template"
+    srcs=["rules.bzl"]
+    deps=["//render:render"]
+)

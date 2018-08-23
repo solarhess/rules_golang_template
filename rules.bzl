@@ -17,12 +17,10 @@ def _render_impl(ctx):
         values[k] = v
 
     for label,key in file_data_values.items() : 
-        print("file input: ", label)
         values[key] = struct(__FILE__ = label.files.to_list()[0].path)
         file_input_files.append(label.files.to_list()[0])
 
     for label,key in json_data_values.items() : 
-        print("json input: ", label)
         values[key] = struct(__JSON__ = label.files.to_list()[0].path)
         file_input_files.append(label.files.to_list()[0])
 
@@ -57,34 +55,33 @@ _render = rule(
     implementation = _render_impl,
     attrs = {
         "extension": attr.string(
-            doc="The filename extension to use for the template output"
+            doc="The filename extension to use for the template output",
             mandatory = True,
         ),
         "template": attr.label(
-            doc="The template file to use as input to the template render"
+            doc="The template file to use as input to the template render",
             allow_files = True,
             single_file = True,
             mandatory = True,
         ),
         "file_data_values": attr.label_keyed_string_dict(
-            doc="A map<string:label> to import the text content of each file into the template rendering context"
+            doc="A map<string:label> to import the text content of each file into the template rendering context",
             allow_files=True,
             mandatory=False,
             allow_empty=True,
             default = {}
         ),
         "json_data_values": attr.label_keyed_string_dict(
-            doc="A map<string:label> to import the parsed json value of each file into the template rendering context"
+            doc="A map<string:label> to import the parsed json value of each file into the template rendering context",
             allow_files=True,
             mandatory=False,
             allow_empty=True,
             default = {}
         ),
         "literal_values": attr.string_dict(
-            doc="A map<string:string> of values to import into the template context"
+            doc="A map<string:string> of values to import into the template context",
             allow_empty=True, 
             default={}, 
-            doc='The values to apply to the template', 
             mandatory=True, 
             non_empty=False
         ),
