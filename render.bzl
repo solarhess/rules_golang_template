@@ -19,15 +19,17 @@ def _render_impl(ctx):
     for label,key in file_data_values.items() : 
         print("file input: ", label)
         values[key] = struct(__FILE__ = label.files.to_list()[0].path)
+        file_input_files.append(label.files.to_list()[0])
 
     for label,key in json_data_values.items() : 
         print("json input: ", label)
         values[key] = struct(__JSON__ = label.files.to_list()[0].path)
+        file_input_files.append(label.files.to_list()[0])
 
 
     outputs = [out]
 
-    values_json = ctx.actions.declare_file(ctx.label.name + '.values.json')
+    values_json = ctx.actions.declare_file(ctx.label.name + '.input-values.json')
     outputs.append(values_json)
     ctx.actions.write(values_json, struct(**values).to_json())
  
@@ -47,7 +49,7 @@ def _render_impl(ctx):
             + file_input_args,
         outputs = [json_data_out, out],
     )
-    
+
     return [DefaultInfo(files = depset(outputs))]
 
 
@@ -89,7 +91,7 @@ _render = rule(
     },
     outputs = {
         "out": "%{name}",
-        "json_data_out":"%{name}.data.json"
+        "json_data_out":"%{name}.values.json"
     },
 )
 

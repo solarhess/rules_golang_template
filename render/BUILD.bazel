@@ -39,6 +39,5 @@ go_test(
         "file.json",
         "test.txt",
         "env-test.tpl"],
-    importpath = "github.com/solarhess/rules_render_bazel/render",
     embed = [":go_default_library"],
 )
