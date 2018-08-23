@@ -3,7 +3,7 @@ load('//:render.bzl','render')
 bazel_build_variable="a variable"
 
 render(
-    name="output.txt",
+    name="literal-data-output",
     template="sample.tmpl.txt",
     literal_values={
         "sweaters": "15",
@@ -13,7 +13,7 @@ render(
 )
 
 render(
-    name="file-data-output.txt",
+    name="file-data-output",
     template="sample.tmpl.txt",
     
     # Explicitly set map values from bazel context variables
@@ -24,14 +24,20 @@ render(
     },
     
     # Set the value of "script" to the contents of the file "script.txt"
-    # The contents of the file is "{{.script}}"
     file_data_values = {
         "script" : ":script.txt"
     },
 
-    # Set the value of "jsondata" to the parsed value of jsondata.json 
-    # {{.jsondata.sweaterCount}}
+    # Set the value of "jsondata" to the json object parsed from the contents of jsondata.json 
     json_data_values = {
         "jsondata" : ":jsondata.json"
     }
+)
+
+sh_test(
+    name = "test-file-data-output",
+    size = "small",
+    srcs = ["test-file-data-output.sh"],
+    args = ["$(location //examples:file-data-output.out)"],
+    data = [":file-data-output.out"]
 )

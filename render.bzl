@@ -90,7 +90,7 @@ _render = rule(
         ),
     },
     outputs = {
-        "out": "%{name}",
+        "out": "%{name}.out",
         "json_data_out":"%{name}.values.json"
     },
 )
