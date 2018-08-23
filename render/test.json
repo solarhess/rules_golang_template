@@ -1,0 +1,10 @@
+{
+    "Type":"Sweaters",
+    "Count":25,
+    "Items": {
+        "Field" : 1,
+        "Stream" : 2
+    },
+    "File":{"__JSON__":"file.json"},
+    "Text":{"__FILE__":"test.txt"}
+}

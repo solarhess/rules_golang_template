@@ -1,0 +1,37 @@
+load('//:render.bzl','render')
+
+bazel_build_variable="a variable"
+
+render(
+    name="output.txt",
+    template="sample.tmpl.txt",
+    literal_values={
+        "sweaters": "15",
+        "build_variable" : bazel_build_variable,
+        "list" : "one",
+    },
+)
+
+render(
+    name="file-data-output.txt",
+    template="sample.tmpl.txt",
+    
+    # Explicitly set map values from bazel context variables
+    literal_values={
+        "sweaters": "15",
+        "build_variable" : bazel_build_variable,
+        "list" : "one",
+    },
+    
+    # Set the value of "script" to the contents of the file "script.txt"
+    # The contents of the file is "{{.script}}"
+    file_data_values = {
+        "script" : ":script.txt"
+    },
+
+    # Set the value of "jsondata" to the parsed value of jsondata.json 
+    # {{.jsondata.sweaterCount}}
+    json_data_values = {
+        "jsondata" : ":jsondata.json"
+    }
+)

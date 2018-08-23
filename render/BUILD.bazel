@@ -1,0 +1,44 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["render.go"],
+    importpath = "github.com/solarhess/rules_render_bazel/render",
+    visibility = ["//visibility:private"],
+)
+
+# This is the binary you can run on the local platform
+go_binary(
+    name = "render",
+    embed = [":go_default_library"],
+    visibility = ["//visibility:public"],
+    x_defs = {
+        "github.com/solarhess/rules_render_bazel/render/app.Version": "{STABLE_GIT_COMMIT}",
+    },
+)
+
+# This is the cross-compiled binary for linux
+go_binary(
+    name = "render_linux_amd64",
+    embed = [":go_default_library"],
+    goarch = "amd64",
+    goos = "linux",
+    pure = "on",
+    visibility = ["//visibility:public"],
+    x_defs = {
+        "github.com/solarhess/rules_render_bazel/render/app.Version": "{STABLE_GIT_COMMIT}",
+    },
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["render_test.go"],
+    data = [
+        "test.json", 
+        "test.tpl",
+        "file.json",
+        "test.txt",
+        "env-test.tpl"],
+    importpath = "github.com/solarhess/rules_render_bazel/render",
+    embed = [":go_default_library"],
+)
