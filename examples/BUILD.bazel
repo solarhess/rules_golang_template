@@ -1,9 +1,10 @@
-load('//:render.bzl','render')
+load('//:rules.bzl','golang_template')
 
 bazel_build_variable="a variable"
 
-render(
+golang_template(
     name="literal-data-output",
+    extension="txt",
     template="sample.tmpl.txt",
     literal_values={
         "sweaters": "15",
@@ -12,8 +13,9 @@ render(
     },
 )
 
-render(
+golang_template(
     name="file-data-output",
+    extension="txt",
     template="sample.tmpl.txt",
     
     # Explicitly set map values from bazel context variables
@@ -38,6 +40,6 @@ sh_test(
     name = "test-file-data-output",
     size = "small",
     srcs = ["test-file-data-output.sh"],
-    args = ["$(location //examples:file-data-output.out)"],
-    data = [":file-data-output.out"]
+    args = ["$(location :file-data-output.txt)"],
+    data = [":file-data-output.txt"]
 )

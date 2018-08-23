@@ -56,24 +56,32 @@ def _render_impl(ctx):
 _render = rule(
     implementation = _render_impl,
     attrs = {
+        "extension": attr.string(
+            doc="The filename extension to use for the template output"
+            mandatory = True,
+        ),
         "template": attr.label(
+            doc="The template file to use as input to the template render"
             allow_files = True,
             single_file = True,
             mandatory = True,
         ),
         "file_data_values": attr.label_keyed_string_dict(
+            doc="A map<string:label> to import the text content of each file into the template rendering context"
             allow_files=True,
             mandatory=False,
             allow_empty=True,
             default = {}
         ),
         "json_data_values": attr.label_keyed_string_dict(
+            doc="A map<string:label> to import the parsed json value of each file into the template rendering context"
             allow_files=True,
             mandatory=False,
             allow_empty=True,
             default = {}
         ),
         "literal_values": attr.string_dict(
+            doc="A map<string:string> of values to import into the template context"
             allow_empty=True, 
             default={}, 
             doc='The values to apply to the template', 
@@ -90,12 +98,12 @@ _render = rule(
         ),
     },
     outputs = {
-        "out": "%{name}.out",
-        "json_data_out":"%{name}.values.json"
+        "out": "%{name}.%{extension}", # the rendered file
+        "json_data_out":"%{name}.values.json" # the values used to render the file.
     },
 )
 
-def render(**kwargs):
+def golang_template(**kwargs):
     if "file_data_values" in kwargs : 
         kwargs["file_data_values"] = dict([[v,k] for k,v in kwargs["file_data_values"].items()])
 
