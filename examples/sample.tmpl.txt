@@ -1,1 +1,4 @@
-The values contain a test of {{.sweaters}} number of sweaters
+Literal .sweaters Expected: 15 actual: {{.sweaters}}
+Json File .jsondata.sample expected: sample actual: {{.jsondata.sample}}
+Text File .script expected scriptdata actual: {{.script}}
+

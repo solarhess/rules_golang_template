@@ -1,7 +1,7 @@
 def _render_impl(ctx):
     render = ctx.executable._render
     template = ctx.file.template
-    values = ctx.attr.literal_values
+    literal_values = ctx.attr.literal_values
     out = ctx.outputs.out
     json_data_out = ctx.outputs.json_data_out
 
@@ -11,25 +11,24 @@ def _render_impl(ctx):
     file_input_args = []
     file_input_files = []
 
-    #TODO update file input files and args
+    values = dict()
+
+    for k,v in literal_values.items() : 
+        values[k] = v
+
     for label,key in file_data_values.items() : 
         print("file input: ", label)
-        file_arg = ctx.expand_location("-file=%s:$(location %s)" % (key, label.file.path), targets=[label])
-        file_input_args.append(file_arg)
-        file_input_files.append(label)
-        print(file_arg)
+        values[key] = struct(__FILE__ = label.files.to_list()[0].path)
 
     for label,key in json_data_values.items() : 
-        file_arg = ctx.expand_location("-json=%s:$(location %s)" % (key, label.file.path), targets=[label])
-        file_input_args.append(file_arg)
-        file_input_files.append(label)
+        print("json input: ", label)
+        values[key] = struct(__JSON__ = label.files.to_list()[0].path)
 
 
     outputs = [out]
 
     values_json = ctx.actions.declare_file(ctx.label.name + '.values.json')
     outputs.append(values_json)
-
     ctx.actions.write(values_json, struct(**values).to_json())
  
     ctx.actions.run(
@@ -41,13 +40,14 @@ def _render_impl(ctx):
         executable=render,
         tools=[render],
         arguments=[
-            "-data="+values_json.path, 
-            "-template="+template.path, 
-            "-output="+out.path,
-            "-output-data-json="+json_data_out.path]
+            "--values="+values_json.path, 
+            "--template="+template.path, 
+            "--output="+out.path,
+            "--data_output="+json_data_out.path]
             + file_input_args,
         outputs = [json_data_out, out],
     )
+    
     return [DefaultInfo(files = depset(outputs))]
 
 

@@ -12,12 +12,20 @@ func assertContainsString(value string, substr string) {
 		panic(fmt.Sprintf("Expected \"%s\", in \"%s\"", substr, value))
 	}
 }
+func assertEquals(actual string, expected string) {
+	if actual != expected {
+		panic(fmt.Sprintf("Expected \"%s\", was \"%s\"", expected, actual))
+	}
+}
 
 func TestItWorks(t *testing.T) {
-	result, err := Render("test.tpl", "test.json")
+	result, data, err := Render("test.tpl", "test.json")
 	if err != nil {
 		panic(fmt.Sprintf("Error %s", err))
 	}
+	assertEquals(data["Type"].(string), "Sweaters")
+	assertEquals(data["File"].(map[string]interface{})["Message"].(string), "A string from inner json")
+	assertEquals(data["Text"].(string), "message in text file")
 	assertContainsString(result, "25")
 	assertContainsString(result, "message in text file")
 	assertContainsString(result, "A string from inner json")
@@ -25,9 +33,10 @@ func TestItWorks(t *testing.T) {
 
 func TestEnv(t *testing.T) {
 	expectedUserValue := os.Getenv("USER")
-	result, err := Render("env-test.tpl", "")
+	result, data, err := Render("env-test.tpl", "")
 	if err != nil {
 		panic(fmt.Sprintf("Error %s", err))
 	}
 	assertContainsString(result, fmt.Sprintf("User: %s", expectedUserValue))
+	assertEquals(data["USER"].(string), expectedUserValue)
 }

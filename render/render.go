@@ -114,13 +114,14 @@ func loadJsonValues(dataFilename string) (templateData map[string]interface{}, e
 func loadValues(dataFilename string) map[string]interface{} {
 	if dataFilename == "" {
 		return loadEnvironmentValues()
-	} else {
-		values, err := loadJsonValues(dataFilename)
-		if err != nil {
-			panic(err)
-		}
-		return values
 	}
+
+	values, err := loadJsonValues(dataFilename)
+	if err != nil {
+		panic(err)
+	}
+	return values
+
 }
 
 func main() {
@@ -128,10 +129,12 @@ func main() {
 	var dataFilename string
 	var templateFilename string
 	var outputFilename string
+	var dataOutputFilename string
 
 	valuesJsonFilenameFlag := flag.String("values", "", "The values file to use, formatted as JSON")
-	templateFilenameFlag := flag.String("template", "", "The filename to write the template output")
-	outputFilenameFlag := flag.String("output", "", "The process environment will be imported when true")
+	templateFilenameFlag := flag.String("template", "", "The filename to read the template from")
+	outputFilenameFlag := flag.String("output", "", "The filename to write the template output")
+	dataOutputFilenameFlag := flag.String("data_output", "", "The filename to write the json data used to render the template")
 
 	flag.Parse()
 
@@ -152,8 +155,13 @@ func main() {
 	} else {
 		templateFilename = ""
 	}
+	if *dataOutputFilenameFlag != "" {
+		dataOutputFilename = *dataOutputFilenameFlag
+	} else {
+		dataOutputFilename = ""
+	}
 
-	outputStr, renderErr := Render(templateFilename, dataFilename)
+	outputStr, data, renderErr := Render(templateFilename, dataFilename)
 	if renderErr != nil {
 		panic(renderErr)
 	}
@@ -167,16 +175,24 @@ func main() {
 		}
 	}
 
+	if dataOutputFilename != "" {
+		dataJson, _ := json.Marshal(data)
+		err := ioutil.WriteFile(dataOutputFilename, dataJson, 0644)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 }
 
 func Render(templateFilename string,
-	dataFilename string) (output string, err error) {
+	dataFilename string) (output string, data map[string]interface{}, err error) {
 
 	templateData := loadValues(dataFilename)
 
 	templateBytes, errtp := ioutil.ReadFile(templateFilename)
 	if errtp != nil {
-		return "", errtp
+		return "", nil, errtp
 	}
 	templateStr := string(templateBytes)
 
@@ -185,5 +201,5 @@ func Render(templateFilename string,
 	stringOut := bytes.NewBufferString(output)
 	tmpl.Execute(stringOut, templateData)
 
-	return stringOut.String(), nil
+	return stringOut.String(), templateData, nil
 }
